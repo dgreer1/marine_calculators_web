@@ -58,6 +58,19 @@ export function shoalingCoefficient(wavePeriod: number, waterDepth: number): num
   return Math.sqrt((0.5 * 1.56 * wavePeriod) / groupCelerity(wavePeriod, waterDepth))
 }
 
+export function refractionCoefficient(wavePeriod: number, deepWaterDirection: number, waterDepth: number): number {
+  requireFinitePositive(wavePeriod, 'Wave period')
+  requireFinitePositive(waterDepth, 'Water depth')
+  if (!Number.isFinite(deepWaterDirection) || deepWaterDirection < 0 || deepWaterDirection > 90) {
+    throw new RangeError('Wave direction must be between 0 and 90 degrees')
+  }
+  const deepWaterCelerity = 1.56 * wavePeriod
+  const shallowWaterCelerity = wavelength(wavePeriod, waterDepth) / wavePeriod
+  const sinTheta0 = Math.sin((deepWaterDirection * Math.PI) / 180)
+  const sinTheta1 = (shallowWaterCelerity * sinTheta0) / deepWaterCelerity
+  return ((1 - sinTheta0 ** 2) / (1 - sinTheta1 ** 2)) ** 0.25
+}
+
 export function energyDensity(waveHeight: number): number {
   requireFiniteNonNegative(waveHeight, 'Wave height')
   return (SEAWATER_DENSITY * GRAVITY * waveHeight ** 2) / 8

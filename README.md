@@ -2,7 +2,7 @@
 
 A browser-based collection of coastal and marine engineering calculators. The application is being migrated incrementally from a separate R Shiny reference implementation, with numerical parity tests for every calculator.
 
-The first implemented calculator is Linear Wave Theory. BEWARE reef setup/runup is intentionally excluded from the initial static migration because its fitted R GAM model requires a separate deployment design.
+The implemented calculators are Linear Wave Theory and Wave Shoaling and Refraction. BEWARE reef setup/runup is intentionally excluded from the initial static migration because its fitted R GAM model requires a separate deployment design.
 
 ## Technology
 

@@ -1,5 +1,15 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import LinearWaveCalculator from './calculators/waves/linear-wave/LinearWaveCalculator.vue'
+import ShoalingRefractionCalculator from './calculators/waves/shoaling-refraction/ShoalingRefractionCalculator.vue'
+
+type CalculatorId = 'linear-wave' | 'shoaling-refraction'
+const activeCalculator = ref<CalculatorId>('linear-wave')
+
+function selectCalculator(id: CalculatorId) {
+  activeCalculator.value = id
+  window.scrollTo({ top: 200, behavior: 'smooth' })
+}
 </script>
 
 <template>
@@ -10,7 +20,13 @@ import LinearWaveCalculator from './calculators/waves/linear-wave/LinearWaveCalc
     </div>
     <nav aria-label="Primary navigation">
       <a href="#">Home</a>
-      <a class="active" href="#calculator-title">Waves <span>▾</span></a>
+      <div class="nav-menu">
+        <button class="active" type="button">Waves <span>▾</span></button>
+        <div class="nav-dropdown">
+          <button type="button" @click="selectCalculator('linear-wave')">Linear Wave Theory</button>
+          <button type="button" @click="selectCalculator('shoaling-refraction')">Wave Shoaling and Refraction</button>
+        </div>
+      </div>
       <a href="#calculator-title">Sediment Transport <span>▾</span></a>
       <a href="#calculator-title">Water Level <span>▾</span></a>
       <a href="#calculator-title">Engineering <span>▾</span></a>
@@ -18,7 +34,8 @@ import LinearWaveCalculator from './calculators/waves/linear-wave/LinearWaveCalc
   </header>
 
   <main>
-    <LinearWaveCalculator />
+    <LinearWaveCalculator v-if="activeCalculator === 'linear-wave'" />
+    <ShoalingRefractionCalculator v-else />
   </main>
 
   <footer id="about">

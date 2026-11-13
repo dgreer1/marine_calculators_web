@@ -10,8 +10,14 @@ button, input, select { font: inherit; }
 .banner-title { position: absolute; z-index: 1; left: 14px; bottom: 4px; color: white; font-size: clamp(1.9rem, 3.2vw, 2.75rem); font-weight: 700; text-shadow: 0 2px 5px #000; }
 .site-header nav { min-height: 51px; display: flex; align-items: stretch; background: #f7f7f7; border-bottom: 1px solid #ddd; }
 .site-header nav a { display: flex; align-items: center; gap: 8px; padding: 0 24px; color: #555; text-decoration: none; font-size: .86rem; }
-.site-header nav a:hover, .site-header nav a.active { color: #222; background: #e8e8e8; }
+.site-header nav a:hover, .site-header nav a.active, .nav-menu > button:hover, .nav-menu > button.active { color: #222; background: #e8e8e8; }
 .site-header nav span { color: #555; font-size: .72rem; }
+.nav-menu { position: relative; display: flex; }
+.nav-menu > button { padding: 0 24px; border: 0; color: #555; background: transparent; cursor: pointer; font-size: .86rem; }
+.nav-dropdown { position: absolute; z-index: 20; top: 100%; left: 0; min-width: 245px; display: none; padding: 5px 0; background: #fff; border: 1px solid #ccc; box-shadow: 0 5px 12px rgb(0 0 0 / 12%); }
+.nav-menu:hover .nav-dropdown, .nav-menu:focus-within .nav-dropdown { display: block; }
+.nav-dropdown button { width: 100%; padding: 10px 15px; border: 0; color: #333; background: white; cursor: pointer; text-align: left; font-size: .82rem; }
+.nav-dropdown button:hover, .nav-dropdown button:focus { background: #eee; }
 .calculator { max-width: 1540px; margin: 0 auto; padding: 38px 24px 64px; }
 .calculator-heading { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 14px; }
 h1 { margin: 0; color: #252525; font-size: 2rem; font-weight: 400; }
@@ -40,6 +46,7 @@ input:focus, select:focus { outline: 2px solid rgb(0 123 255 / 18%); border-colo
 .graphical-body { padding: 11px; background: #fff; }
 .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
 .graphical-lower { display: grid; grid-template-columns: 1fr .9fr; gap: 30px; align-items: start; }
+.single-graphical-body { display: grid; grid-template-columns: 1.6fr 1fr; gap: 25px; }
 .plot { width: 100%; min-height: 265px; background: #fff; }
 .top-charts .plot { min-height: 300px; }
 .select-row { display: flex; flex-direction: column; gap: 18px; padding: 29px 20px 0 0; }
@@ -63,7 +70,7 @@ footer p { margin: 0; }
   .site-header nav a { flex: 0 0 auto; padding: 0 15px; }
   .calculator { padding: 28px 14px 48px; }
   .calculator-heading { align-items: flex-start; flex-direction: column; }
-  .calculator-grid, .chart-grid, .graphical-lower { grid-template-columns: 1fr; }
+  .calculator-grid, .chart-grid, .graphical-lower, .single-graphical-body { grid-template-columns: 1fr; }
   .charts-panel { grid-column: auto; }
   .select-row { padding: 5px 0 15px; }
   footer { flex-direction: column; }
