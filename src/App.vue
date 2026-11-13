@@ -2,8 +2,9 @@
 import { ref } from 'vue'
 import LinearWaveCalculator from './calculators/waves/linear-wave/LinearWaveCalculator.vue'
 import ShoalingRefractionCalculator from './calculators/waves/shoaling-refraction/ShoalingRefractionCalculator.vue'
+import StokesDriftCalculator from './calculators/waves/stokes-drift/StokesDriftCalculator.vue'
 
-type CalculatorId = 'linear-wave' | 'shoaling-refraction'
+type CalculatorId = 'linear-wave' | 'shoaling-refraction' | 'stokes-drift'
 const activeCalculator = ref<CalculatorId>('linear-wave')
 
 function selectCalculator(id: CalculatorId) {
@@ -26,6 +27,7 @@ function selectCalculator(id: CalculatorId) {
         <div class="nav-dropdown">
           <button type="button" @click="selectCalculator('linear-wave')">Linear Wave Theory</button>
           <button type="button" @click="selectCalculator('shoaling-refraction')">Wave Shoaling and Refraction</button>
+          <button type="button" @click="selectCalculator('stokes-drift')">Stokes Drift</button>
         </div>
       </div>
       <a href="#calculator-title">Sediment Transport <span>▾</span></a>
@@ -36,7 +38,8 @@ function selectCalculator(id: CalculatorId) {
 
   <main>
     <LinearWaveCalculator v-if="activeCalculator === 'linear-wave'" />
-    <ShoalingRefractionCalculator v-else />
+    <ShoalingRefractionCalculator v-else-if="activeCalculator === 'shoaling-refraction'" />
+    <StokesDriftCalculator v-else />
   </main>
 
   <footer id="about">

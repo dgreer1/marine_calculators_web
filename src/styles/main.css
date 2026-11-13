@@ -43,6 +43,7 @@ input:focus, select:focus { outline: 2px solid rgb(0 123 255 / 18%); border-colo
 .results dt { margin: 0 0 3px; color: #111; font-size: .78rem; font-weight: 700; letter-spacing: 0; text-transform: none; }
 .results dd, .results .primary-result dd { margin: 0; color: #222; font-family: Arial, sans-serif; font-size: .78rem; }
 .results small { color: #222; font-family: Arial, sans-serif; font-size: inherit; }
+.overline { text-decoration: overline; }
 .graphical-body { padding: 11px; background: #fff; }
 .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
 .graphical-lower { display: grid; grid-template-columns: 1fr .9fr; gap: 30px; align-items: start; }
