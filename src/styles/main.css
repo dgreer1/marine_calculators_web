@@ -1,0 +1,77 @@
+:root { font-family: Arial, Helvetica, sans-serif; color: #222; background: #fff; font-synthesis: none; text-rendering: optimizeLegibility; }
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; min-width: 320px; background: #fff; }
+button, input, select { font: inherit; }
+.site-header { max-width: 1540px; margin: 16px auto 0; padding: 0 8px; }
+.banner { position: relative; height: 186px; overflow: hidden; }
+.banner img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
+.banner::after { content: ""; position: absolute; inset: 45% 0 0; background: linear-gradient(transparent, rgb(0 0 0 / 45%)); }
+.banner-title { position: absolute; z-index: 1; left: 14px; bottom: 4px; color: white; font-size: clamp(1.9rem, 3.2vw, 2.75rem); font-weight: 700; text-shadow: 0 2px 5px #000; }
+.site-header nav { min-height: 51px; display: flex; align-items: stretch; background: #f7f7f7; border-bottom: 1px solid #ddd; }
+.site-header nav a { display: flex; align-items: center; gap: 8px; padding: 0 24px; color: #555; text-decoration: none; font-size: .86rem; }
+.site-header nav a:hover, .site-header nav a.active, .nav-menu > button:hover, .nav-menu > button.active { color: #222; background: #e8e8e8; }
+.site-header nav span { color: #555; font-size: .72rem; }
+.nav-menu { position: relative; display: flex; }
+.nav-menu > button { padding: 0 24px; border: 0; color: #555; background: transparent; cursor: pointer; font-size: .86rem; }
+.nav-dropdown { position: absolute; z-index: 20; top: 100%; left: 0; min-width: 245px; display: none; padding: 5px 0; background: #fff; border: 1px solid #ccc; box-shadow: 0 5px 12px rgb(0 0 0 / 12%); }
+.nav-menu:hover .nav-dropdown, .nav-menu:focus-within .nav-dropdown { display: block; }
+.nav-dropdown button { width: 100%; padding: 10px 15px; border: 0; color: #333; background: white; cursor: pointer; text-align: left; font-size: .82rem; }
+.nav-dropdown button:hover, .nav-dropdown button:focus { background: #eee; }
+.calculator { max-width: 1540px; margin: 0 auto; padding: 38px 24px 64px; }
+.calculator-heading { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 14px; }
+h1 { margin: 0; color: #252525; font-size: 2rem; font-weight: 400; }
+.calculator-grid { display: grid; grid-template-columns: minmax(260px, 1fr) minmax(280px, 1fr) minmax(620px, 2.2fr); gap: 30px; align-items: start; }
+.panel { overflow: hidden; background: white; border: 1px solid; border-radius: 3px; }
+.input-panel { border-color: #e84c3d; }
+.output-panel { border-color: #f39c12; }
+.charts-panel { border-color: #00ad63; }
+.panel-title { min-height: 40px; display: flex; align-items: center; margin: 0; padding: 0 11px; color: white; }
+.panel-title h2 { margin: 0; font-size: 1rem; font-weight: 400; }
+.input-title { background: #e84c3d; }
+.output-title { background: #f39c12; }
+.graphical-title { background: #00ad63; }
+.input-panel > label { display: block; margin: 0 11px; padding-top: 15px; color: #111; font-size: .78rem; font-weight: 700; }
+.input-panel > label span { color: #111; font-size: inherit; }
+input, select { width: 100%; border: 1px solid #cfcfcf; border-radius: 2px; color: #222; background: #fff; }
+input { display: block; margin-top: 8px; padding: 9px 11px; font-size: .82rem; font-weight: 400; }
+input:focus, select:focus { outline: 2px solid rgb(0 123 255 / 18%); border-color: #6699cc; }
+.input-panel > label:last-of-type { padding-bottom: 24px; }
+.error { margin: 0 11px 15px; padding: 8px 10px; color: #9e2d22; background: #fff1ef; border-left: 3px solid #e84c3d; font-size: .78rem; }
+.results { display: block; margin: 0; padding: 12px 11px 18px; }
+.results div { min-height: 0; padding: 0 0 8px; border: 0; background: #fff; }
+.results dt { margin: 0 0 3px; color: #111; font-size: .78rem; font-weight: 700; letter-spacing: 0; text-transform: none; }
+.results dd, .results .primary-result dd { margin: 0; color: #222; font-family: Arial, sans-serif; font-size: .78rem; }
+.results small { color: #222; font-family: Arial, sans-serif; font-size: inherit; }
+.graphical-body { padding: 11px; background: #fff; }
+.chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.graphical-lower { display: grid; grid-template-columns: 1fr .9fr; gap: 30px; align-items: start; }
+.single-graphical-body { display: grid; grid-template-columns: 1.6fr 1fr; gap: 25px; }
+.plot { width: 100%; min-height: 265px; background: #fff; }
+.top-charts .plot { min-height: 300px; }
+.select-row { display: flex; flex-direction: column; gap: 18px; padding: 29px 20px 0 0; }
+.select-row label { color: #111; font-size: .78rem; font-weight: 700; }
+.select-row select { display: block; margin-top: 8px; padding: 9px 11px; font-size: .8rem; font-weight: 400; }
+.background-panel { margin-top: 20px; border: 1px solid #338fbd; }
+.background-title { min-height: 41px; display: flex; align-items: center; justify-content: space-between; padding: 0 11px; color: white; background: #3c94bf; }
+.background-title h2 { margin: 0; font-size: 1rem; font-weight: 400; }
+.background-title span { font-size: 1rem; }
+.background-body { padding: 11px; color: #111; font-size: .8rem; line-height: 1.55; }
+.background-body p { margin: 0 0 10px; }
+.background-body .equation { margin: 8px 0 14px; overflow-x: auto; font-size: 1rem; }
+.background-body .katex-display { margin: .5em 0; text-align: left; }
+footer { display: flex; justify-content: space-between; gap: 30px; padding: 25px max(24px, calc((100vw - 1492px) / 2)); color: #666; background: #f6f6f6; border-top: 1px solid #ddd; font-size: .75rem; }
+footer p { margin: 0; }
+@media (max-width: 1150px) { .calculator-grid { grid-template-columns: 1fr 1fr; } .charts-panel { grid-column: 1 / -1; } }
+@media (max-width: 740px) {
+  .site-header { margin-top: 0; padding: 0; }
+  .banner { height: 125px; }
+  .site-header nav { overflow-x: auto; }
+  .site-header nav a { flex: 0 0 auto; padding: 0 15px; }
+  .calculator { padding: 28px 14px 48px; }
+  .calculator-heading { align-items: flex-start; flex-direction: column; }
+  .calculator-grid, .chart-grid, .graphical-lower, .single-graphical-body { grid-template-columns: 1fr; }
+  .charts-panel { grid-column: auto; }
+  .select-row { padding: 5px 0 15px; }
+  footer { flex-direction: column; }
+}
