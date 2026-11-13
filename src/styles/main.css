@@ -68,6 +68,16 @@ input:focus, select:focus { outline: 2px solid rgb(0 123 255 / 18%); border-colo
 .background-figure figcaption { margin-top: 6px; color: #555; font-size: .75rem; }
 .background-body .equation { margin: 8px 0 14px; overflow-x: auto; font-size: 1rem; }
 .background-body .katex-display { margin: .5em 0; text-align: left; }
+.theory-intro { max-width: 980px; margin: -2px 0 20px; color: #444; font-size: .88rem; line-height: 1.55; }
+.theory-grid { grid-template-columns: minmax(250px, .8fr) minmax(300px, 1fr) minmax(620px, 2.2fr); }
+.theory-recommendation { margin: 12px 11px 4px; padding: 12px; border-left: 4px solid #f39c12; background: #fff8e9; }
+.theory-recommendation.warning { border-color: #c83f34; background: #fff0ee; }
+.theory-recommendation strong { display: block; margin-bottom: 5px; font-size: .94rem; }
+.theory-recommendation p { margin: 0; font-size: .78rem; line-height: 1.45; }
+.theory-chart-panel .plot { min-height: 440px; }
+.theory-key { display: flex; flex-wrap: wrap; gap: 7px; margin: -2px 10px 8px; font-size: .72rem; }
+.theory-key span { padding: 4px 7px; border: 1px solid rgb(0 0 0 / 14%); }
+.theory-key .linear { background: #edf6fc; }.theory-key .stokes { background: #fff1c9; }.theory-key .cnoidal { background: #e8f7e9; }.theory-key .fourier { background: #eee7f7; }.theory-key .breaking { background: #f8d8d4; }
 footer { display: flex; justify-content: space-between; gap: 30px; padding: 25px max(24px, calc((100vw - 1492px) / 2)); color: #666; background: #f6f6f6; border-top: 1px solid #ddd; font-size: .75rem; }
 footer p { margin: 0; }
 @media (max-width: 1150px) { .calculator-grid { grid-template-columns: 1fr 1fr; } .charts-panel { grid-column: 1 / -1; } }
