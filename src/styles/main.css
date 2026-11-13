@@ -93,6 +93,11 @@ input:focus, select:focus { outline: 2px solid rgb(0 123 255 / 18%); border-colo
 .case-badge { display: inline-block; padding: 4px 7px; color: #166233; background: #e6f6eb; border: 1px solid #79c987; font-size: .68rem; font-weight: 700; }
 .explainer-copy dl { margin: 0; }.explainer-copy dl div { margin-top: 12px; }.explainer-copy dt { margin-bottom: 3px; font-size: .75rem; font-weight: 700; }.explainer-copy dd { margin: 0; color: #444; font-size: .78rem; line-height: 1.5; }
 .profile-demo .plot { min-height: 275px; }.profile-demo > p { margin: -3px 0 0; color: #666; font-size: .7rem; text-align: center; }
+.fourier-lab { margin-top: 24px; border: 1px solid #7040a1; background: #fff; }
+.fourier-lab-heading { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:14px 16px; color:#fff; background:#7040a1; }.fourier-lab-heading h2 { margin:0 0 3px; font-size:1.05rem; font-weight:400; }.fourier-lab-heading p { margin:0; font-size:.75rem; }.fourier-lab-heading button { flex:0 0 auto; padding:9px 14px; border:1px solid #fff; color:#4c2674; background:#fff; cursor:pointer; }.fourier-lab-heading button:disabled { opacity:.65; cursor:wait; }
+.solver-notice { margin:0; padding:9px 16px; color:#634a25; background:#fff7df; border-bottom:1px solid #ead7a2; font-size:.7rem; }.solver-error { margin:14px 16px; color:#a1261e; font-size:.8rem; }.solver-empty { padding:28px 16px; color:#666; font-size:.8rem; text-align:center; }
+.fourier-summary { display:grid; grid-template-columns:repeat(4,1fr); margin:0; padding:14px 16px; border-bottom:1px solid #ddd; }.fourier-summary div { padding:2px 12px; border-right:1px solid #ddd; }.fourier-summary div:last-child { border-right:0; }.fourier-summary dt { font-size:.72rem; font-weight:700; }.fourier-summary dd { margin:4px 0 0; font-size:.9rem; }
+.fourier-graphs { display:grid; grid-template-columns:1.25fr .75fr; gap:22px; padding:16px; }.fourier-graphs article { min-width:0; }.fourier-graphs h3 { margin:0 0 5px; font-size:.82rem; }.fourier-graphs .plot { min-height:300px; }.fourier-graphs .velocity-graph { grid-column:1 / -1; }.fourier-graphs .velocity-graph .plot { min-height:380px; }
 .background-body a { color: #176a94; }
 footer { display: flex; justify-content: space-between; gap: 30px; padding: 25px max(24px, calc((100vw - 1492px) / 2)); color: #666; background: #f6f6f6; border-top: 1px solid #ddd; font-size: .75rem; }
 footer p { margin: 0; }
@@ -106,6 +111,7 @@ footer p { margin: 0; }
   .calculator-heading { align-items: flex-start; flex-direction: column; }
   .calculator-grid, .chart-grid, .graphical-lower, .single-graphical-body { grid-template-columns: 1fr; }
   .theory-tabs { grid-template-columns: 1fr 1fr; }.theory-tabs button:nth-child(2) { border-right: 0; }.explorer-content { grid-template-columns: 1fr; padding: 15px; }
+  .fourier-lab-heading { align-items:flex-start; flex-direction:column; }.fourier-summary { grid-template-columns:1fr 1fr; }.fourier-summary div { margin:5px 0; }.fourier-graphs { grid-template-columns:1fr; }.fourier-graphs .velocity-graph { grid-column:auto; }
   .charts-panel { grid-column: auto; }
   .select-row { padding: 5px 0 15px; }
   footer { flex-direction: column; }
