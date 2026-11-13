@@ -16,6 +16,7 @@ button, input, select { font: inherit; }
 .nav-menu > button { padding: 0 24px; border: 0; color: #555; background: transparent; cursor: pointer; font-size: .86rem; }
 .nav-dropdown { position: absolute; z-index: 20; top: 100%; left: 0; min-width: 245px; display: none; padding: 5px 0; background: #fff; border: 1px solid #ccc; box-shadow: 0 5px 12px rgb(0 0 0 / 12%); }
 .nav-menu:hover .nav-dropdown, .nav-menu:focus-within .nav-dropdown { display: block; }
+.menus-suppressed .nav-dropdown { display: none !important; }
 .nav-dropdown button { width: 100%; padding: 10px 15px; border: 0; color: #333; background: white; cursor: pointer; text-align: left; font-size: .82rem; }
 .nav-dropdown button:hover, .nav-dropdown button:focus { background: #eee; }
 .calculator { max-width: 1540px; margin: 0 auto; padding: 38px 24px 64px; }
