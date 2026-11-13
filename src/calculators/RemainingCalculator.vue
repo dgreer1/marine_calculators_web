@@ -25,6 +25,211 @@ const configs:Record<RemainingId,Config>={
  'submerged-breakwater':{title:'Wave Transmission over Submerged Breakwater',fields:[['H','Wave Height','m',2],['L','Wave Length','m',150],['depth','Submergence Depth','m',.5],['width','Reef Width','m',15],['d50','Core Median Rock Size','m',.5]].map(([key,label,unit,value])=>({key:key as string,label:label as string,unit:unit as string,value:value as number,min:.000001})),calculate:v=>submergedTransmission(v.H,v.L,v.depth,v.width,v.d50),outputs:[{key:'coefficient',label:'Transmission Coefficient',digits:2},{key:'reduction',label:'Wave Reduction',unit:'%',digits:0},{key:'inRange',label:'Variables Within Calibration Range'}],background:'Transmission follows the empirical submerged-breakwater relationship used in the Shiny app. A warning is shown when either calibration parameter is outside its published range.'},
  'reef-balls':{title:'Wave Transmission over Reef Balls',fields:[['H','Wave Height','m',1.5],['L','Wave Length','m',150],['depth','Submergence Depth','m',.5],['width','Peak-to-Peak Array Width','m',15]].map(([key,label,unit,value])=>({key:key as string,label:label as string,unit:unit as string,value:value as number,min:.000001})),calculate:v=>reefBallTransmission(v.H,v.L,v.depth,v.width),outputs:[{key:'coefficient',label:'Transmission Coefficient',digits:2},{key:'reduction',label:'Wave Reduction',unit:'%',digits:0}],background:'The transmission coefficient is calculated from relative submergence and dimensionless array width, with interpolation through the transition range.'}
 }
+const fullBackgrounds: Record<RemainingId,string> = {
+  'wave-setup': `Wave setup and runup on a planar beach are calculated using Stockdon et al. (2006). The deep-water wavelength is
+
+$L_0=\\frac{gT^2}{2\\pi}$
+
+and the Iribarren number is
+
+$\\xi_0=\\frac{\\beta_f}{\\sqrt{H_0/L_0}}$
+
+where $H_0$ is deep-water wave height, $T$ is wave period and $\\beta_f$ is beach-face slope. For dissipative conditions ($\\xi_0&lt;0.3$):
+
+$\\eta=0.016\\sqrt{H_0L_0}, \\qquad R_{2\\%}=0.043\\sqrt{H_0L_0}$
+
+For $\\xi_0\\ge0.3$:
+
+$\\eta=0.35\\beta_f\\sqrt{H_0L_0}$
+
+$R_{2\\%}=1.1\\left[0.35\\beta_f\\sqrt{H_0L_0}+\\frac{\\sqrt{H_0L_0(0.563\\beta_f^2+0.004)}}{2}\\right]$
+
+Breaker type is classified as spilling for $\\xi_0&lt;0.5$, plunging for $0.5\\le\\xi_0&lt;3.3$, and surging or collapsing above 3.3.
+
+Reference: Stockdon, H. F., Holman, R. A., Howd, P. A., & Sallenger, A. H. (2006). Empirical parameterization of setup, swash, and runup. Coastal Engineering, 53(7), 573–588.`,
+  'fringe-setup': `Wave and wind setup on a fringing reef follow the empirical relationships presented by Sánchez et al. (2007). Wave setup is
+
+$\\eta_{wave}=\\max\\left[-0.18h+0.48\\log_{10}(H_s^2T_p)-5.53\\frac{H_s}{T_p^2},0\\right]$
+
+where $h$ is depth over the reef, $H_s$ is significant wave height and $T_p$ is peak period.
+
+Wind setup is
+
+$\\eta_{wind}=\\frac{BC_DU_{10}^2}{K(h+\\eta_{wave})}$
+
+where $B$ is reef width, $K=100000/3$, and the wind drag coefficient varies linearly from $C_D=0.00063$ at zero wind to $0.00723$ at 100 m/s:
+
+$C_D=0.00063+(0.00723-0.00063)\\frac{U_{10}}{100}$
+
+These relationships are empirical and should be applied cautiously outside the calibration conditions.
+
+Reference: Sánchez, A., et al. (2007), fringing-reef wave and wind setup relationships used in the original application.`,
+  'fall-velocity': `Fall velocity for non-cohesive sediment is calculated with two methods. Ferguson and Church (2004) define
+
+$w=\\frac{Rg d^2}{C_1\\nu+\\sqrt{0.75C_2Rg d^3}}$
+
+where $R=(\\rho_s-\\rho)/\\rho$, $C_1=18$, $C_2=1$, $d$ is particle diameter and $\\nu=1.36\\times10^{-6}\\,m^2/s$.
+
+Soulsby (1997) defines dimensionless grain size as
+
+$D_*=\\left[\\frac{g(s-1)}{\\nu^2}\\right]^{1/3}d, \\qquad s=\\frac{\\rho_s}{\\rho}$
+
+and fall velocity as
+
+$w=\\frac{\\nu}{d}\\left(\\sqrt{10.36^2+1.049D_*^3}-10.36\\right)$
+
+The sediment is assumed to be non-cohesive and the fluid properties are represented by the entered density and fixed kinematic viscosity.
+
+References: Ferguson, R. I., & Church, M. (2004). A simple universal equation for grain settling velocity. Journal of Sedimentary Research, 74(6), 933–937. Soulsby, R. L. (1997). Dynamics of Marine Sands. Thomas Telford.`,
+  'bed-shear': `Combined wave-current bed shear stress uses the simple DATA13 method of Soulsby (1997). Rough turbulent flow is assumed, which is appropriate for most practical marine settings.
+
+Current-only shear stress is
+
+$\\tau_c=\\rho C_D\\bar U^2, \\qquad C_D=\\left[\\frac{0.40}{1+\\ln(z_0/h)}\\right]^2$
+
+Wave-only shear stress is
+
+$\\tau_w=\\frac12\\rho f_wU_w^2, \\qquad f_w=1.39\\left(\\frac{A}{z_0}\\right)^{-0.52}$
+
+where $U_w=\\pi H/[T\\sinh(kh)]$ and $A=U_wT/(2\\pi)$ is semi-orbital excursion.
+
+The cycle-mean combined stress is
+
+$\\tau_m=\\tau_c\\left[1+1.2\\left(\\frac{\\tau_w}{\\tau_c+\\tau_w}\\right)^{3.2}\\right]$
+
+and maximum combined stress is
+
+$\\tau_{max}=\\left[(\\tau_m+\\tau_w\\cos\\phi)^2+(\\tau_w\\sin\\phi)^2\\right]^{1/2}$
+
+The wave-current angle is folded into 0–90 degrees because wave orbital motion reverses. $\\tau_m$ governs current friction and diffusion into the outer flow; $\\tau_{max}$ is used for threshold of motion and entrainment. Typical $z_0$ values from Soulsby range from about 0.00005 m for silt/sand to 0.006 m for rippled sand.
+
+Reference: Soulsby, R. L. (1997). Dynamics of Marine Sands. Thomas Telford.`,
+  'critical-current': `The critical threshold for depth-averaged current speed over a horizontal, unrippled bed follows Soulsby (1997):
+
+$\\bar U_{cr}=7\\left(\\frac{h}{d_{50}}\\right)^{1/7}\\left[g(s-1)d_{50}f(D_*)\\right]^{1/2}$
+
+where $s=\\rho_s/\\rho$ and
+
+$D_*=\\left[\\frac{g(s-1)}{\\nu^2}\\right]^{1/3}d_{50}$
+
+$f(D_*)=\\frac{0.30}{1+1.2D_*}+0.055[1-\\exp(-0.02D_*)]$
+
+The relationship is valid for $D_*>0.1$.
+
+Reference: Soulsby, R. L. (1997). Dynamics of Marine Sands. Thomas Telford.`,
+  'critical-shear': `Critical bed shear stress for non-cohesive sediment is calculated from the Soulsby (1997) approximation to the Shields curve.
+
+$D_*=\\left[\\frac{g(s-1)}{\\nu^2}\\right]^{1/3}d$
+
+$\\theta_{cr}=\\frac{0.30}{1+1.2D_*}+0.055[1-\\exp(-0.020D_*)]$
+
+$\\tau_{cr}=\\theta_{cr}g(\\rho_s-\\rho)d$
+
+Here $d$ is grain diameter, $s=\\rho_s/\\rho$, and $\\nu=1.36\\times10^{-6}\\,m^2/s$.
+
+Reference: Soulsby, R. L. (1997). Dynamics of Marine Sands. Thomas Telford.`,
+  'critical-orbital': `Critical bed orbital velocity for non-cohesive sediment follows Soulsby (1997). For $d&lt;0.5$ mm:
+
+$U_{w,cr}=[0.118g(s-1)]^{2/3}d^{1/3}T^{1/3}$
+
+For $d\\ge0.5$ mm:
+
+$U_{w,cr}=[1.09g(s-1)]^{4/7}d^{3/7}T^{1/7}$
+
+where $s=\\rho_s/\\rho$, $d$ is grain diameter and $T$ is wave period.
+
+Reference: Soulsby, R. L. (1997). Dynamics of Marine Sands. Thomas Telford.`,
+  'beach-slope': `Beach-face slope is estimated from median grain size using the empirical relationship
+
+$\\beta=-0.178(d_{50,mm}-0.125)^{-0.187}+0.294$
+
+where $d_{50,mm}$ is median grain size in millimetres. The relationship should not be extrapolated below 0.125 mm, where the fractional power becomes undefined in real arithmetic. It is an empirical estimate rather than a substitute for a surveyed beach profile.`,
+  'sediment-density': `Dry bulk density is estimated from the percentages of sand, silt and clay:
+
+$\\rho_{dry}=1550p_{sand}+1120p_{silt}+415p_{clay}$
+
+where each fraction $p$ is expressed from 0 to 1. The three percentages should sum to 100.
+
+Wet bulk density is
+
+$\\rho_{bulk}=\\rho_w+\\frac{\\rho_s-\\rho_w}{\\rho_s}\\rho_{dry}$
+
+and porosity is
+
+$n=\\frac{\\rho_s-\\rho_{dry}}{\\rho_s}$
+
+where $\\rho_w$ is water density and $\\rho_s$ is the specific density of sediment particles.`,
+  'wind-setup': `Wind setup in an enclosed water body is estimated as
+
+$\\eta_{wind}=\\frac12k\\left(\\frac{U_{10}^2}{gh}\\right)F$
+
+where $U_{10}$ is 10 m wind speed, $h$ is average water depth, $F$ is fetch, $g=9.81\\,m/s^2$, and $k=3.5\\times10^{-6}$. The method assumes a uniform enclosed water body and constant wind acting along the fetch.`,
+  'rock-sizing': `Rock sizing follows Van der Meer (1988) for two-layer armoured, non-overtopped slopes. Deep-water wavelength, steepness and surf similarity are
+
+$L_0=\\frac{gT^2}{2\\pi}, \\qquad s_m=\\frac{H_s}{L_0}, \\qquad \\xi_m=s_m^{-1/2}\\tan\\alpha$
+
+The transition value is
+
+$\\xi_{mc}=\\left[\\frac{C_{pl}}{C_s}P^{0.31}\\sqrt{\\tan\\alpha}\\right]^{1/(P+0.5)}$
+
+with $C_{pl}=8.4$, $C_s=1.3$ for spectral period $T_{m-1}$, or 8.7 and 1.4 for mean period $T_m$. Plunging and surging stability numbers incorporate permeability $P$, damage $S_d$, number of waves $N_z$, depth limitation, obliquity and safety factors. Nominal diameter is
+
+$D_{n50}=\\frac{H_s}{\\Delta N_s}, \\qquad \\Delta=\\frac{\\rho_s}{\\rho_w}-1$
+
+The calculator selects the plunging or surging expression using $\\xi_m$, $\\xi_{mc}$ and slope limits.
+
+Reference: Van der Meer, J. W. (1988). Rock slopes and gravel beaches under wave attack. Delft Hydraulics Communication No. 396.`,
+  'overtopping': `Runup and overtopping follow EurOtop relationships for sea dikes and revetments. Surf similarity is
+
+$\\xi_m=s_m^{-1/2}\\tan\\alpha, \\qquad s_m=H_s/L_0$
+
+For $\\xi_m&lt;1.7$, 2% runup is
+
+$R_{2\\%}=1.65\\gamma_s\\gamma_r\\gamma_b\\gamma_\\beta\\xi_mH_s$
+
+and for larger $\\xi_m$:
+
+$R_{2\\%}=\\gamma_s\\gamma_r(4-1.5/\\sqrt{\\xi_m})H_s$
+
+The wave-angle factor is $\\gamma_\\beta=0.5+0.5\\cos^2\\beta$. Mean overtopping discharge uses the relevant breaking, non-breaking or steep-slope exponential EurOtop expression and is returned in litres per metre per second. Percentage overtopping is
+
+$P_{ov}=100\\exp[-3.91R_c^2/R_{2\\%}^2]$
+
+Reference: EurOtop (2018). Manual on wave overtopping of sea defences and related structures.`,
+  'submerged-breakwater': `Wave transmission over a submerged rubble-mound breakwater is calculated as
+
+$K_t=1-\\left[\\exp\\left(-0.65\\frac{d_s}{H}-1.09\\frac{H}{B}\\right)+0.047\\frac{Bd_s}{Ld_{50}}-0.067\\frac{d_sH}{Bd_{50}}\\right]$
+
+where $H$ and $L$ are incident wave height and wavelength, $d_s$ is submergence depth, $B$ is crest width and $d_{50}$ is median core-rock size. Wave reduction is $(1-K_t)\\times100\\%$.
+
+The empirical calibration ranges used by the original application are
+
+$0\\le Bd_s/(Ld_{50})\\le7.08$
+
+and
+
+$0\\le d_sH/(Bd_{50})\\le2.14$.
+
+Results outside these ranges are flagged and should not be relied upon without further validation.`,
+  'reef-balls': `Wave transmission over a Reef Ball array is expressed using relative submergence
+
+$R^*=R_c/H$
+
+and dimensionless effective array width
+
+$b^*=0.6B/\\sqrt{HL}$.
+
+For $R^*\\le0.4$:
+
+$K_t=[-0.249\\min(4,b^*)+0.9474]^2$
+
+For $R^*\\ge0.7$:
+
+$K_t=\\frac{1}{1+0.3(R^*)^{-1.5}b^*}$
+
+The calculator linearly blends the two expressions for $0.4&lt;R^*&lt;0.7$. Percentage wave reduction is $(1-K_t)\\times100\\%$. The relationship is empirical and should be used within the geometric and wave conditions represented by its source data.`
+}
+for (const [id, background] of Object.entries(fullBackgrounds)) configs[id as RemainingId].background = background
 const config=configs[props.id];const stored=JSON.parse(localStorage.getItem(`marine-calculators:${props.id}:v1`)??'{}');const values=reactive<Record<string,number>>(Object.fromEntries(config.fields.map(f=>[f.key,stored[f.key]??f.value])));watch(values,v=>localStorage.setItem(`marine-calculators:${props.id}:v1`,JSON.stringify(v)),{deep:true});const result=computed(()=>config.calculate(values));const sweepKey=ref(config.fields[0].key);const outputKey=ref(config.outputs.find(o=>typeof result.value[o.key]==='number')?.key??config.outputs[0].key);const sweep=computed(()=>{const base=values[sweepKey.value];const field=config.fields.find(f=>f.key===sweepKey.value)!;const lo=Math.max(field.min??0,base*.25||.000001);const hi=Math.max(base*2,lo*2);return linspace(lo,hi,80).map(x=>({x,y:Number(config.calculate({...values,[sweepKey.value]:x})[outputKey.value])}))});const chartData=computed(()=>[{x:sweep.value.map(p=>p.x),y:sweep.value.map(p=>p.y),type:'scatter' as const,mode:'lines' as const,line:{color:'#0879bd',width:2},hovertemplate:'%{x:.4g}<br>%{y:.4g}<extra></extra>'},{x:[values[sweepKey.value]],y:[Number(result.value[outputKey.value])],type:'scatter' as const,mode:'markers' as const,marker:{color:'#111',size:9},hovertemplate:'Current<extra></extra>'}]);function display(key:string,digits=3){const v=result.value[key];if(typeof v==='boolean')return v?'Yes':'No';if(typeof v==='string')return v;return Number.isFinite(v)?Number(v).toFixed(digits):'Not applicable'}
 onMounted(async()=>{await nextTick();const el=document.querySelector('.remaining-background');if(el)renderMathInElement(el as HTMLElement,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false})})
 </script>
