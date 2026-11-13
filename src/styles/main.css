@@ -20,8 +20,10 @@ button, input, select { font: inherit; }
 .nav-dropdown button:hover, .nav-dropdown button:focus { background: #eee; }
 .calculator { max-width: 1540px; margin: 0 auto; padding: 38px 24px 64px; }
 .calculator-heading { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 14px; }
+.subsection-heading { margin-top: 34px; }
 h1 { margin: 0; color: #252525; font-size: 2rem; font-weight: 400; }
 .calculator-grid { display: grid; grid-template-columns: minmax(260px, 1fr) minmax(280px, 1fr) minmax(620px, 2.2fr); gap: 30px; align-items: start; }
+.no-chart-grid { grid-template-columns: minmax(260px, 355px) minmax(280px, 355px); }
 .panel { overflow: hidden; background: white; border: 1px solid; border-radius: 3px; }
 .input-panel { border-color: #e84c3d; }
 .output-panel { border-color: #f39c12; }
