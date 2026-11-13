@@ -8,6 +8,7 @@ const activeCalculator = ref<CalculatorId>('linear-wave')
 
 function selectCalculator(id: CalculatorId) {
   activeCalculator.value = id
+  if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
   window.scrollTo({ top: 200, behavior: 'smooth' })
 }
 </script>
