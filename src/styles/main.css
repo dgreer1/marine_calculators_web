@@ -21,6 +21,10 @@ button, input, select { font: inherit; }
 .nav-dropdown button:hover, .nav-dropdown button:focus { background: #eee; }
 .calculator { max-width: 1540px; margin: 0 auto; padding: 38px 24px 64px; }
 .calculator-heading { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 14px; }
+.excel-download { flex: 0 0 auto; padding: 9px 13px; border: 1px solid #267a50; border-radius: 2px; color: #fff; background: #2f8f5f; cursor: pointer; font-size: .8rem; }
+.excel-download:hover { background: #267a50; }
+.excel-download:focus { outline: 2px solid rgb(47 143 95 / 35%); outline-offset: 2px; }
+.excel-download:disabled { opacity: .65; cursor: wait; }
 .subsection-heading { margin-top: 34px; }
 h1 { margin: 0; color: #252525; font-size: 2rem; font-weight: 400; }
 .calculator-grid { display: grid; grid-template-columns: minmax(260px, 1fr) minmax(280px, 1fr) minmax(620px, 2.2fr); gap: 30px; align-items: start; }
@@ -69,6 +73,12 @@ input:focus, select:focus { outline: 2px solid rgb(0 123 255 / 18%); border-colo
 .background-body .equation { margin: 8px 0 14px; overflow-x: auto; font-size: 1rem; }
 .background-body .katex-display { margin: .5em 0; text-align: left; }
 .theory-intro { max-width: 980px; margin: -2px 0 20px; color: #444; font-size: .88rem; line-height: 1.55; }
+.map-note { margin: 10px 10px 2px; padding: 9px 11px; border-left: 3px solid #7040a1; color: #333; background: #f7f3fb; font-size: .78rem; line-height: 1.45; }
+.info-tip { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; margin-left: 3px; padding: 0; border: 1px solid #555; border-radius: 50%; color: #333; background: #fff; font: 700 11px/1 Georgia, serif; vertical-align: 1px; cursor: help; }
+.info-tip::after { position: absolute; z-index: 20; bottom: calc(100% + 8px); left: 50%; width: 240px; padding: 8px 10px; border: 1px solid #555; color: #fff; background: #222; box-shadow: 0 2px 6px rgba(0,0,0,.2); content: attr(data-tip); font: 400 .76rem/1.4 Arial, sans-serif; text-align: left; transform: translateX(-50%); opacity: 0; visibility: hidden; pointer-events: none; }
+.info-tip::before { position: absolute; z-index: 21; bottom: calc(100% + 3px); left: 50%; border: 5px solid transparent; border-top-color: #222; content: ''; transform: translateX(-50%); opacity: 0; visibility: hidden; }
+.info-tip:hover::after, .info-tip:hover::before, .info-tip:focus::after, .info-tip:focus::before { opacity: 1; visibility: visible; }
+.info-tip:focus { outline: 2px solid #1678a5; outline-offset: 2px; }
 .theory-grid { grid-template-columns: minmax(250px, .8fr) minmax(300px, 1fr) minmax(620px, 2.2fr); }
 .theory-recommendation { margin: 12px 11px 4px; padding: 12px; border-left: 4px solid #f39c12; background: #fff8e9; }
 .theory-recommendation.warning { border-color: #c83f34; background: #fff0ee; }
@@ -95,6 +105,7 @@ input:focus, select:focus { outline: 2px solid rgb(0 123 255 / 18%); border-colo
 .profile-demo .plot { min-height: 275px; }.profile-demo > p { margin: -3px 0 0; color: #666; font-size: .7rem; text-align: center; }
 .fourier-lab { margin-top: 24px; border: 1px solid #7040a1; background: #fff; }
 .fourier-lab-heading { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:14px 16px; color:#fff; background:#7040a1; }.fourier-lab-heading h2 { margin:0 0 3px; font-size:1.05rem; font-weight:400; }.fourier-lab-heading p { margin:0; font-size:.75rem; }.fourier-lab-heading button { flex:0 0 auto; padding:9px 14px; border:1px solid #fff; color:#4c2674; background:#fff; cursor:pointer; }.fourier-lab-heading button:disabled { opacity:.65; cursor:wait; }
+.solver-range { margin: 14px 16px 0; padding: 10px 12px; border: 1px solid #d6c5e5; color: #332841; background: #f7f3fb; font-size: .82rem; line-height: 1.5; }
 .solver-notice { margin:0; padding:9px 16px; color:#634a25; background:#fff7df; border-bottom:1px solid #ead7a2; font-size:.7rem; }.solver-error { margin:14px 16px; color:#a1261e; font-size:.8rem; }.solver-empty { padding:28px 16px; color:#666; font-size:.8rem; text-align:center; }
 .fourier-summary { display:grid; grid-template-columns:repeat(4,1fr); margin:0; padding:14px 16px; border-bottom:1px solid #ddd; }.fourier-summary div { padding:2px 12px; border-right:1px solid #ddd; }.fourier-summary div:last-child { border-right:0; }.fourier-summary dt { font-size:.72rem; font-weight:700; }.fourier-summary dd { margin:4px 0 0; font-size:.9rem; }
 .fourier-graphs { display:grid; grid-template-columns:1.25fr .75fr; gap:22px; padding:16px; }.fourier-graphs article { min-width:0; }.fourier-graphs h3 { margin:0 0 5px; font-size:.82rem; }.fourier-graphs .plot { min-height:300px; }.fourier-graphs .velocity-graph { grid-column:1 / -1; }.fourier-graphs .velocity-graph .plot { min-height:380px; }

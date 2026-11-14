@@ -4,6 +4,7 @@ import renderMathInElement from 'katex/contrib/auto-render'
 import PlotlyChart from '../../../components/PlotlyChart.vue'
 import { calculateShoalingRefraction, validateShoalingRefractionInput, type ShoalingRefractionInput } from '../../../engineering/waves/shoalingRefraction'
 import { buildShoalingSweep, inputLabels, inputUnits, outputLabels, outputUnits, type ShoalingSweepInput, type ShoalingSweepOutput } from './series'
+import { downloadShoalingWorkbook } from '../../../export/waveTheoryWorkbooks'
 
 const STORAGE_KEY = 'marine-calculators:shoaling-refraction:v1'
 const defaults: ShoalingRefractionInput = { deepWaterWaveHeight: 1, wavePeriod: 15, waterDepth: 10, deepWaterDirection: 45 }
@@ -26,6 +27,8 @@ const error = computed(() => {
   catch (reason) { return reason instanceof Error ? reason.message : 'Invalid input' }
 })
 const result = computed(() => error.value ? null : calculateShoalingRefraction(input))
+const exporting = ref(false)
+async function downloadExcel(){if(error.value)return;exporting.value=true;try{await downloadShoalingWorkbook({...input})}finally{exporting.value=false}}
 const sweep = computed(() => error.value ? [] : buildShoalingSweep(input, sweepInput.value, sweepOutput.value))
 const current = computed(() => result.value ? { x: input[sweepInput.value], y: result.value[sweepOutput.value] } : null)
 const sweepData = computed(() => current.value ? [{
@@ -49,7 +52,7 @@ onMounted(async () => {
 
 <template>
   <section class="calculator" aria-labelledby="shoaling-title">
-    <div class="calculator-heading"><h1 id="shoaling-title">Wave Shoaling and Refraction</h1></div>
+    <div class="calculator-heading"><h1 id="shoaling-title">Wave Shoaling and Refraction</h1><button class="excel-download" type="button" :disabled="exporting || !!error" @click="downloadExcel">{{ exporting ? 'Preparing Excel…' : 'Download Excel template' }}</button></div>
     <div class="calculator-grid compact-calculator-grid">
       <article class="panel input-panel">
         <div class="panel-title input-title"><h2>Input</h2></div>

@@ -4,6 +4,7 @@ import renderMathInElement from 'katex/contrib/auto-render'
 import PlotlyChart from '../components/PlotlyChart.vue'
 import { linspace } from '../engineering/numeric'
 import { beachSlope, bedShear, criticalSediment, enclosedWindSetup, fallVelocity, fringeSetup, overtopping, planarSetup, reefBallTransmission, rockSizing, sedimentDensity, submergedTransmission } from '../engineering/remaining'
+import { downloadRemainingWorkbook, supportsRemainingWorkbook } from '../export/remainingWorkbooks'
 
 export type RemainingId='wave-setup'|'fringe-setup'|'fall-velocity'|'bed-shear'|'critical-current'|'critical-shear'|'critical-orbital'|'beach-slope'|'sediment-density'|'wind-setup'|'rock-sizing'|'overtopping'|'submerged-breakwater'|'reef-balls'
 const props=defineProps<{id:RemainingId}>()
@@ -241,11 +242,12 @@ const backgroundImages: Partial<Record<RemainingId,{src:string;alt:string;captio
   ],
 }
 const config=configs[props.id];const stored=JSON.parse(localStorage.getItem(`marine-calculators:${props.id}:v1`)??'{}');const values=reactive<Record<string,number>>(Object.fromEntries(config.fields.map(f=>[f.key,stored[f.key]??f.value])));watch(values,v=>localStorage.setItem(`marine-calculators:${props.id}:v1`,JSON.stringify(v)),{deep:true});const result=computed(()=>config.calculate(values));const sweepKey=ref(config.fields[0].key);const outputKey=ref(config.outputs.find(o=>typeof result.value[o.key]==='number')?.key??config.outputs[0].key);const sweep=computed(()=>{const base=values[sweepKey.value];const field=config.fields.find(f=>f.key===sweepKey.value)!;const lo=Math.max(field.min??0,base*.25||.000001);const hi=Math.max(base*2,lo*2);return linspace(lo,hi,80).map(x=>({x,y:Number(config.calculate({...values,[sweepKey.value]:x})[outputKey.value])}))});const chartData=computed(()=>[{x:sweep.value.map(p=>p.x),y:sweep.value.map(p=>p.y),type:'scatter' as const,mode:'lines' as const,line:{color:'#0879bd',width:2},hovertemplate:'%{x:.4g}<br>%{y:.4g}<extra></extra>'},{x:[values[sweepKey.value]],y:[Number(result.value[outputKey.value])],type:'scatter' as const,mode:'markers' as const,marker:{color:'#111',size:9},hovertemplate:'Current<extra></extra>'}]);function display(key:string,digits=3){const v=result.value[key];if(typeof v==='boolean')return v?'Yes':'No';if(typeof v==='string')return v;return Number.isFinite(v)?Number(v).toFixed(digits):'Not applicable'}
+const exporting=ref(false);const canExport=supportsRemainingWorkbook(props.id);async function downloadExcel(){exporting.value=true;try{await downloadRemainingWorkbook(props.id,{...values})}finally{exporting.value=false}}
 onMounted(async()=>{await nextTick();const el=document.querySelector('.remaining-background') as HTMLElement|null;if(!el)return;renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});for(const item of backgroundImages[props.id]??[]){const figure=document.createElement('figure');figure.className='background-figure';const image=document.createElement('img');image.src=`${import.meta.env.BASE_URL}images/background/${item.src}`;image.alt=item.alt;image.loading='lazy';const caption=document.createElement('figcaption');caption.textContent=item.caption;figure.append(image,caption);el.append(figure)}})
 </script>
 <template>
   <section class="calculator">
-    <div class="calculator-heading"><h1>{{ config.title }}</h1></div>
+    <div class="calculator-heading"><h1>{{ config.title }}</h1><button v-if="canExport" class="excel-download" type="button" :disabled="exporting" @click="downloadExcel">{{ exporting ? 'Preparing Excel…' : 'Download Excel template' }}</button></div>
     <div class="calculator-grid">
       <article class="panel input-panel">
         <div class="panel-title input-title"><h2>Input</h2></div>

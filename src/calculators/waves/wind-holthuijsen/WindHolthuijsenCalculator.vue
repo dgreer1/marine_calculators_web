@@ -4,6 +4,7 @@ import renderMathInElement from 'katex/contrib/auto-render'
 import PlotlyChart from '../../../components/PlotlyChart.vue'
 import { holthuijsen, validateHolthuijsen, type HolthuijsenInput } from '../../../engineering/waves/windWaves'
 import { linspace } from '../../../engineering/numeric'
+import { downloadHolthuijsenWorkbook } from '../../../export/windWavesWorkbooks'
 
 type InputKey = keyof HolthuijsenInput
 type OutputKey = 'significantWaveHeight' | 'peakPeriod' | 'developmentTime'
@@ -17,6 +18,8 @@ const sweepInput = ref<InputKey>('windSpeed'); const sweepOutput = ref<OutputKey
 watch(input, value => localStorage.setItem('marine-calculators:wind-holthuijsen:v1', JSON.stringify(value)), { deep: true })
 const error = computed(() => { try { validateHolthuijsen(input); return '' } catch (e) { return e instanceof Error ? e.message : 'Invalid input' } })
 const result = computed(() => error.value ? null : holthuijsen(input))
+const exporting = ref(false)
+async function downloadExcel(){if(error.value)return;exporting.value=true;try{await downloadHolthuijsenWorkbook({...input})}finally{exporting.value=false}}
 const sweep = computed(() => {
   if (!result.value) return []
   const current = input[sweepInput.value]
@@ -28,7 +31,7 @@ onMounted(async () => { await nextTick(); const el = document.querySelector('.ho
 </script>
 
 <template><section class="calculator" aria-labelledby="holthuijsen-title">
-  <div class="calculator-heading"><h1 id="holthuijsen-title">Fetch Limited Waves (Holthuijsen, 2006)</h1></div>
+  <div class="calculator-heading"><h1 id="holthuijsen-title">Fetch Limited Waves (Holthuijsen, 2006)</h1><button class="excel-download" type="button" :disabled="exporting || !!error" @click="downloadExcel">{{ exporting ? 'Preparing Excel…' : 'Download Excel template' }}</button></div>
   <div class="calculator-grid compact-calculator-grid">
     <article class="panel input-panel"><div class="panel-title input-title"><h2>Input</h2></div><label>Wind Speed <span>(m/s)</span><input v-model.number="input.windSpeed" type="number" min="0.01" max="35" step="0.1" /></label><label>Fetch <span>(km)</span><input v-model.number="input.fetch" type="number" min="0" max="10000" step="1" /></label><label>Depth <span>(m)</span><input v-model.number="input.waterDepth" type="number" min="0.01" max="10000" step="0.1" /></label><p v-if="error" class="error">{{ error }}</p></article>
     <article class="panel output-panel"><div class="panel-title output-title"><h2>Output</h2></div><dl v-if="result" class="results"><div><dt>Significant Wave Height (<i>H</i><sub>s</sub>)</dt><dd>{{ result.significantWaveHeight.toFixed(2) }} m</dd></div><div><dt>Peak Period (<i>T</i><sub>p</sub>)</dt><dd>{{ result.peakPeriod.toFixed(2) }} s</dd></div><div><dt>Time Until Fetch Limited</dt><dd>{{ result.developmentTime.toFixed(2) }} hours</dd></div></dl></article>

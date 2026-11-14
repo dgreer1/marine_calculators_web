@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, reactive, watch } from 'vue'
+import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue'
 import renderMathInElement from 'katex/contrib/auto-render'
 import PlotlyChart from '../../../components/PlotlyChart.vue'
 import { calculateStokesDrift, stokesDriftProfile, validateStokesDriftInput, type StokesDriftInput } from '../../../engineering/waves/stokesDrift'
+import { downloadStokesDriftWorkbook } from '../../../export/waveTheoryWorkbooks'
 
 const STORAGE_KEY = 'marine-calculators:stokes-drift:v1'
 const defaults: StokesDriftInput = { waveHeight: 1, wavePeriod: 10, waterDepth: 10 }
@@ -20,6 +21,8 @@ const error = computed(() => {
   catch (reason) { return reason instanceof Error ? reason.message : 'Invalid input' }
 })
 const result = computed(() => error.value ? null : calculateStokesDrift(input))
+const exporting = ref(false)
+async function downloadExcel(){if(error.value)return;exporting.value=true;try{await downloadStokesDriftWorkbook({...input})}finally{exporting.value=false}}
 const profile = computed(() => error.value ? [] : stokesDriftProfile(input))
 const chartData = computed(() => [{
   x: profile.value.map(point => point.velocity), y: profile.value.map(point => point.heightAboveBed),
@@ -37,7 +40,7 @@ onMounted(async () => {
 
 <template>
   <section class="calculator" aria-labelledby="stokes-title">
-    <div class="calculator-heading"><h1 id="stokes-title">Stokes Drift</h1></div>
+    <div class="calculator-heading"><h1 id="stokes-title">Stokes Drift</h1><button class="excel-download" type="button" :disabled="exporting || !!error" @click="downloadExcel">{{ exporting ? 'Preparing Excel…' : 'Download Excel template' }}</button></div>
     <div class="calculator-grid compact-calculator-grid">
       <article class="panel input-panel">
         <div class="panel-title input-title"><h2>Input</h2></div>

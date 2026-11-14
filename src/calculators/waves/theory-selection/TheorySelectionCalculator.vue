@@ -72,7 +72,7 @@ onMounted(async () => {
 <template>
   <section class="calculator theory-selector">
     <div class="calculator-heading"><h1>Nonlinear Regular Wave Theory</h1></div>
-    <div class="theory-intro">Use the wave conditions to locate the case on a wave-theory applicability map. The result is guidance—not a hard boundary—and assumes a regular, non-breaking wave over constant depth.</div>
+    <div class="theory-intro">Airy theory is a good starting point for small waves, but waves become less symmetrical and more nonlinear as they grow taller or move into shallow water. Different theories describe these effects in different ranges of water depth and wave height. This page helps you compare them and choose a suitable approach for a regular, non-breaking wave over constant depth.</div>
     <div class="calculator-grid theory-grid">
       <article class="panel input-panel">
         <div class="panel-title input-title"><h2>Input</h2></div>
@@ -88,11 +88,11 @@ onMounted(async () => {
             <strong>{{ result.theory }}</strong><p>{{ result.explanation }}</p>
           </div>
           <dl class="results">
-            <div><dt>Linear Wavelength</dt><dd>{{ result.wavelength.toFixed(2) }} m</dd></div>
-            <div><dt>Relative Depth (h/L)</dt><dd>{{ result.relativeDepth.toFixed(3) }}</dd></div>
-            <div><dt>Relative Wave Height (H/h)</dt><dd>{{ result.relativeHeight.toFixed(3) }}</dd></div>
-            <div><dt>Linear Steepness (kH/2)</dt><dd>{{ result.steepness.toFixed(3) }}</dd></div>
-            <div><dt>Ursell Number</dt><dd>{{ result.ursell.toFixed(1) }}</dd></div>
+            <div><dt>Linear Wavelength <button class="info-tip" type="button" aria-label="About linear wavelength" data-tip="The crest-to-crest distance predicted by Airy theory. It provides a useful baseline even when a nonlinear theory is needed.">i</button></dt><dd>{{ result.wavelength.toFixed(2) }} m</dd></div>
+            <div><dt>Relative Depth (h/L) <button class="info-tip" type="button" aria-label="About relative depth" data-tip="Water depth divided by wavelength. Small h/L means a long wave is strongly influenced by the seabed; large h/L indicates deeper-water behaviour.">i</button></dt><dd>{{ result.relativeDepth.toFixed(3) }}</dd></div>
+            <div><dt>Relative Wave Height (H/h) <button class="info-tip" type="button" aria-label="About relative wave height" data-tip="Wave height divided by water depth. It measures how large the wave is compared with the available depth and helps indicate proximity to breaking.">i</button></dt><dd>{{ result.relativeHeight.toFixed(3) }}</dd></div>
+            <div><dt>Linear Steepness (kH/2) <button class="info-tip" type="button" aria-label="About linear steepness" data-tip="A dimensionless measure of wave slope, equal to πH/L. Larger values mean steeper, more nonlinear waves.">i</button></dt><dd>{{ result.steepness.toFixed(3) }}</dd></div>
+            <div><dt>Ursell Number <button class="info-tip" type="button" aria-label="About the Ursell number" data-tip="A measure of shallow-water nonlinearity, Ur = H L²/h³. A large value means nonlinear effects are important compared with frequency dispersion; values above roughly 40 often favour cnoidal theory.">i</button></dt><dd>{{ result.ursell.toFixed(1) }}</dd></div>
           </dl>
         </template>
       </article>
@@ -101,6 +101,7 @@ onMounted(async () => {
         <div class="graphical-body">
           <PlotlyChart :data="chartData" :layout="chartLayout" />
           <div class="theory-key" aria-label="Applicability-map key"><span class="linear">Airy</span><span class="stokes">Stokes</span><span class="cnoidal">Cnoidal</span><span class="fourier">Fourier / stream function</span><span class="breaking">Breaking region</span></div>
+          <p class="map-note"><strong>How to read this map:</strong> the colours show which description is most informative—not the only method that can calculate the case. The Fenton Fourier/stream-function solver below is used across the Airy, Stokes, cnoidal and purple regions, provided the wave is regular and non-breaking.</p>
         </div>
       </article>
     </div>
@@ -125,11 +126,12 @@ onMounted(async () => {
     </section>
 
     <section class="fourier-lab" aria-labelledby="fourier-lab-title">
-      <div class="fourier-lab-heading"><div><h2 id="fourier-lab-title">Experimental Fourier wave solver</h2><p>John Fenton's nonlinear C++ solver, compiled to WebAssembly and running entirely in your browser.</p></div><button type="button" :disabled="solverBusy || !!error" @click="runFourier">{{ solverBusy ? 'Solving…' : 'Run Fourier model' }}</button></div>
+      <div class="fourier-lab-heading"><div><h2 id="fourier-lab-title">Experimental Fenton Fourier / stream-function solver</h2><p>Adapted from John Fenton's nonlinear C++ solver.</p></div><button type="button" :disabled="solverBusy || !!error" @click="runFourier">{{ solverBusy ? 'Solving…' : 'Run Fourier model' }}</button></div>
+      <p class="solver-range"><strong>One numerical method across the map:</strong> this is the only nonlinear solver currently implemented on this page. It can calculate regular, non-breaking waves across the ranges commonly described by Airy, Stokes and cnoidal theories; those names remain useful for understanding the dominant wave behaviour.</p>
       <p class="solver-notice">Experimental public preview. Results should be independently checked. Original method and program © John D. Fenton; redistribution permission is being sought.</p>
       <p v-if="solverError" class="solver-error">{{ solverError }}</p>
       <template v-if="fourierSolution">
-        <dl class="fourier-summary"><div><dt>Nonlinear wavelength</dt><dd>{{ fourierSolution.wavelength.toFixed(2) }} m</dd></div><div><dt>Wave celerity</dt><dd>{{ fourierSolution.celerity.toFixed(2) }} m/s</dd></div><div><dt>Stokes–Ursell number</dt><dd>{{ fourierSolution.stokesUrsell.toFixed(3) }}</dd></div><div><dt>Fraction of limiting height</dt><dd>{{ fourierSolution.heightFractionOfMaximum.toFixed(0) }}%</dd></div></dl>
+        <dl class="fourier-summary"><div><dt>Nonlinear wavelength <button class="info-tip" type="button" aria-label="About nonlinear wavelength" data-tip="The crest-to-crest distance calculated while satisfying the nonlinear wave equations. It may differ slightly from the Airy-theory wavelength.">i</button></dt><dd>{{ fourierSolution.wavelength.toFixed(2) }} m</dd></div><div><dt>Wave celerity <button class="info-tip" type="button" aria-label="About wave celerity" data-tip="The speed at which a wave crest and its regular wave form travel.">i</button></dt><dd>{{ fourierSolution.celerity.toFixed(2) }} m/s</dd></div><div><dt>Stokes–Ursell number <button class="info-tip" type="button" aria-label="About the Stokes Ursell number" data-tip="Fenton's scaled form of the Ursell number. A value near 0.5 is an approximate boundary between the ranges normally associated with Stokes and cnoidal expansions.">i</button></dt><dd>{{ fourierSolution.stokesUrsell.toFixed(3) }}</dd></div><div><dt>Fraction of limiting height <button class="info-tip" type="button" aria-label="About fraction of limiting height" data-tip="The calculated wave height as a percentage of an estimated maximum steady-wave height. Approaching 100% signals a near-limiting wave and requires particular caution.">i</button></dt><dd>{{ fourierSolution.heightFractionOfMaximum.toFixed(0) }}%</dd></div></dl>
         <div class="fourier-graphs"><article><h3>Nonlinear free surface</h3><PlotlyChart :data="fourierSurfaceData" :layout="surfaceLayout" /></article><article><h3>Harmonic spectrum</h3><PlotlyChart :data="fourierSpectrumData" :layout="spectrumLayout" /></article><article class="velocity-graph"><h3>Horizontal velocity field</h3><PlotlyChart :data="fourierVelocityData" :layout="velocityLayout" /></article></div>
       </template>
       <div v-else-if="!solverBusy" class="solver-empty">Run the model to calculate the nonlinear wave profile, harmonic content and subsurface velocity field for the current inputs.</div>

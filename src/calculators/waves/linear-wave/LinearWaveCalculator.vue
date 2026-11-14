@@ -19,6 +19,7 @@ import {
   type SweepInput,
   type SweepOutput,
 } from './series'
+import { downloadLinearWaveWorkbook } from '../../../export/waveTheoryWorkbooks'
 
 const STORAGE_KEY = 'marine-calculators:linear-wave:v1'
 const defaults: LinearWaveInput = { waveHeight: 2, wavePeriod: 12, waterDepth: 100 }
@@ -50,6 +51,8 @@ const error = computed(() => {
 })
 
 const result = computed(() => error.value ? null : calculateLinearWave(input))
+const exporting = ref(false)
+async function downloadExcel(){if(error.value)return;exporting.value=true;try{await downloadLinearWaveWorkbook({...input})}finally{exporting.value=false}}
 const profile = computed(() => error.value ? [] : orbitalProfile(input))
 const sweep = computed(() => error.value ? [] : buildSweep(input, sweepInput.value, sweepOutput.value))
 const currentPoint = computed(() => error.value ? null : currentSweepPoint(input, sweepInput.value, sweepOutput.value))
@@ -126,7 +129,7 @@ onMounted(async () => {
 <template>
   <section class="calculator" aria-labelledby="calculator-title">
     <div class="calculator-heading">
-      <div><h1 id="calculator-title">Linear Wave Theory</h1></div>
+      <div><h1 id="calculator-title">Linear Wave Theory</h1></div><button class="excel-download" type="button" :disabled="exporting || !!error" @click="downloadExcel">{{ exporting ? 'Preparing Excel…' : 'Download Excel template' }}</button>
     </div>
 
     <div class="calculator-grid">

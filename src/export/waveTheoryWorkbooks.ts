@@ -1,0 +1,45 @@
+import type { Workbook as ExcelWorkbook } from 'exceljs'
+import type { LinearWaveInput } from '../engineering/waves/linearWave'
+import type { ShoalingRefractionInput } from '../engineering/waves/shoalingRefraction'
+import type { StokesDriftInput } from '../engineering/waves/stokesDrift'
+
+type Column={label:string;kind:'input'|'working'|'output';key?:string;formula?:(r:number)=>string;min?:number;max?:number;format?:string;width?:number}
+const fills={input:'FFF2CC',working:'DDEBF7',output:'E2F0D9'}
+
+async function makeWorkbook(title:string,note:string,reference:string,filename:string,columns:Column[],values:Record<string,number>){
+  const {default:ExcelJS}=await import('exceljs');const workbook:ExcelWorkbook=new ExcelJS.Workbook();workbook.creator='Marine Calculators';workbook.title=title;workbook.subject=title;workbook.created=new Date();workbook.calcProperties.fullCalcOnLoad=true
+  const sheet=workbook.addWorksheet('Calculations',{properties:{defaultRowHeight:18}});sheet.columns=[{width:10},...columns.map(c=>({width:c.width??22})),{width:34}];const total=columns.length+2;const last=sheet.getColumn(total).letter;sheet.views=[{state:'frozen',ySplit:6,showGridLines:false,activeCell:'B7'}]
+  sheet.mergeCells(`A2:${last}2`);sheet.getCell('A2').value=title;sheet.getCell('A2').font={name:'Arial',size:15,bold:true,color:{argb:'FF1F1F1F'}}
+  sheet.mergeCells(`A3:${last}3`);sheet.getCell('A3').value='Editable input cells are yellow. Blue cells show the shared Fenton–McKee calculation. Green cells contain results.';sheet.getCell('A3').font={name:'Arial',size:10,italic:true,color:{argb:'FF555555'}}
+  sheet.mergeCells(`A4:${last}4`);sheet.getCell('A4').value=note;sheet.getCell('A4').font={name:'Arial',size:10,color:{argb:'FF7F6000'}}
+  const header=sheet.getRow(6);header.values=['Case',...columns.map(c=>c.label),'Notes'];header.height=38;header.eachCell(c=>{c.font={name:'Arial',size:10,bold:true,color:{argb:'FFFFFFFF'}};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF1F4E78'}};c.alignment={horizontal:'center',vertical:'middle',wrapText:true}})
+  for(let r=7;r<=31;r++){sheet.getCell(r,1).value=r-6;columns.forEach((col,i)=>{const c=sheet.getCell(r,i+2);c.value=col.kind==='input'?(r===7?values[col.key!]:null):{formula:col.formula!(r)};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:`FF${fills[col.kind]}`}};c.font={name:'Arial',size:10};c.border={bottom:{style:'hair',color:{argb:'FFB7C9D6'}}};c.numFmt=col.format??(col.kind==='input'?'0.000':'0.000');if(col.kind==='input')c.dataValidation={type:'decimal',operator:'between',allowBlank:true,showErrorMessage:true,formulae:[col.min??-1E100,col.max??1E100],errorTitle:'Invalid input',error:'Enter a value within the permitted range.'}});const n=sheet.getCell(r,total);n.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFFFF2CC'}}}
+  sheet.autoFilter=`A6:${last}31`;sheet.mergeCells(`A34:${last}34`);sheet.getCell('A34').value=`Reference: ${reference}`;sheet.getCell('A34').font={name:'Arial',size:9,italic:true,color:{argb:'FF555555'}}
+  return {workbook,filename}
+}
+
+const baseColumns:Column[]=[
+  {label:'Deep-water wavelength, L0 (m)',kind:'working',formula:r=>`IF(C${r}="","",9.81*C${r}^2/(2*PI()))`},
+  {label:'Fenton–McKee term',kind:'working',formula:r=>`IF(OR(C${r}="",D${r}=""),"",(2*PI()*SQRT(D${r}/9.81)/C${r})^1.5)`},
+  {label:'Wavelength, L (m)',kind:'working',formula:r=>`IF(OR(E${r}="",F${r}=""),"",E${r}*TANH(F${r})^(2/3))`},
+  {label:'Wavenumber, k (1/m)',kind:'working',formula:r=>`IF(G${r}="","",2*PI()/G${r})`},
+]
+
+export async function createLinearWaveWorkbook(input:LinearWaveInput){return makeWorkbook('Linear Wave Theory','Uses the explicit Fenton & McKee (1990) wavelength approximation; no iterative Excel calculation is required.','Fenton & McKee (1990), Coastal Engineering 14(6), 499–513; Airy (1841).','linear-wave-theory.xlsx',[
+  {key:'waveHeight',label:'Wave height, H (m)',kind:'input',min:0,max:100},{key:'wavePeriod',label:'Wave period, T (s)',kind:'input',min:.01,max:25},{key:'waterDepth',label:'Water depth, h (m)',kind:'input',min:.01,max:6000},...baseColumns,
+  {label:'Wave celerity, C (m/s)',kind:'output',formula:r=>`IF(OR(H${r}="",D${r}=""),"",SQRT(9.81/H${r}*TANH(H${r}*D${r})))`},{label:'Group factor, n',kind:'working',formula:r=>`IF(OR(H${r}="",D${r}=""),"",0.5*(1+2*H${r}*D${r}/SINH(2*H${r}*D${r})))`},{label:'Group celerity, Cg (m/s)',kind:'output',formula:r=>`IF(OR(I${r}="",J${r}=""),"",I${r}*J${r})`},{label:'Shoaling coefficient, Ks',kind:'working',formula:r=>`IF(OR(C${r}="",K${r}=""),"",SQRT((0.5*1.56*C${r})/K${r}))`},{label:'Offshore wave height (m)',kind:'output',formula:r=>`IF(OR(B${r}="",L${r}=""),"",B${r}/L${r})`},{label:'Energy density (J/m²)',kind:'output',formula:r=>`IF(B${r}="","",1027*9.81*B${r}^2/8)`},{label:'Energy flux (W/m)',kind:'output',formula:r=>`IF(OR(N${r}="",K${r}=""),"",N${r}*K${r})`},{label:'Bed orbital velocity (m/s)',kind:'output',formula:r=>`IF(OR(B${r}="",C${r}="",D${r}="",H${r}=""),"",B${r}*PI()/(C${r}*SINH(H${r}*D${r})))`},{label:'Relative-depth classification',kind:'output',format:'@',formula:r=>`IF(OR(B${r}="",D${r}="",G${r}=""),"",IF(B${r}/D${r}>0.78,"Breaking",IF(B${r}/G${r}>0.17,"Deep-water breaking",IF(D${r}>0.5*G${r},"Deep water",IF(D${r}>=0.05*G${r},"Transitional","Shallow water")))))`}
+],input as unknown as Record<string,number>)}
+
+export async function createShoalingWorkbook(input:ShoalingRefractionInput){return makeWorkbook('Wave Shoaling and Refraction','The first row contains the current web-calculator case. Direction is measured using the same convention as the web calculator.','Fenton & McKee (1990); U.S. Army Corps of Engineers (2006), Coastal Engineering Manual II-3-13.','wave-shoaling-refraction.xlsx',[
+  {key:'deepWaterWaveHeight',label:'Deep-water wave height, H0 (m)',kind:'input',min:0,max:20},{key:'wavePeriod',label:'Wave period, T (s)',kind:'input',min:.01,max:20},{key:'waterDepth',label:'Water depth, h (m)',kind:'input',min:.01,max:6000},{key:'deepWaterDirection',label:'Deep-water direction, θ0 (deg)',kind:'input',min:0,max:90},
+  {label:'Deep-water wavelength, L0 (m)',kind:'working',formula:r=>`IF(C${r}="","",9.81*C${r}^2/(2*PI()))`},{label:'Fenton–McKee term',kind:'working',formula:r=>`IF(OR(C${r}="",D${r}=""),"",(2*PI()*SQRT(D${r}/9.81)/C${r})^1.5)`},{label:'Wavelength, L (m)',kind:'working',formula:r=>`IF(OR(F${r}="",G${r}=""),"",F${r}*TANH(G${r})^(2/3))`},{label:'Wavenumber, k (1/m)',kind:'working',formula:r=>`IF(H${r}="","",2*PI()/H${r})`},{label:'Celerity, C (m/s)',kind:'working',formula:r=>`IF(H${r}="","",H${r}/C${r})`},{label:'Group factor, n',kind:'working',formula:r=>`IF(OR(I${r}="",D${r}=""),"",0.5*(1+2*I${r}*D${r}/SINH(2*I${r}*D${r})))`},{label:'Group celerity, Cg (m/s)',kind:'working',formula:r=>`IF(OR(J${r}="",K${r}=""),"",J${r}*K${r})`},{label:'Shoaling coefficient, Ks',kind:'output',formula:r=>`IF(OR(C${r}="",L${r}=""),"",SQRT((0.5*1.56*C${r})/L${r}))`},{label:'Deep-water celerity, C0 (m/s)',kind:'working',formula:r=>`IF(C${r}="","",1.56*C${r})`},{label:'sin θ1',kind:'working',formula:r=>`IF(OR(E${r}="",J${r}="",N${r}=""),"",J${r}*SIN(RADIANS(E${r}))/N${r})`},{label:'Refraction coefficient, Kr',kind:'output',formula:r=>`IF(O${r}="","",((1-SIN(RADIANS(E${r}))^2)/(1-O${r}^2))^0.25)`},{label:'Shallow-water wave height (m)',kind:'output',formula:r=>`IF(OR(B${r}="",M${r}="",P${r}=""),"",B${r}*M${r}*P${r})`}
+],input as unknown as Record<string,number>)}
+
+export async function createStokesDriftWorkbook(input:StokesDriftInput){return makeWorkbook('Stokes Drift','Uses the explicit Fenton–McKee wavelength approximation and does not account for bed friction.','Fenton & McKee (1990); Phillips (1977), The Dynamics of the Upper Ocean.','stokes-drift.xlsx',[
+  {key:'waveHeight',label:'Wave height, H (m)',kind:'input',min:0,max:50},{key:'wavePeriod',label:'Wave period, T (s)',kind:'input',min:.01,max:1000},{key:'waterDepth',label:'Water depth, h (m)',kind:'input',min:.01,max:5000},...baseColumns,{label:'Surface Stokes drift (m/s)',kind:'output',formula:r=>`IF(OR(B${r}="",C${r}=""),"",2*B${r}^2*PI()^3/(9.81*C${r}^3))`},{label:'Depth-averaged Stokes drift (m/s)',kind:'output',formula:r=>`IF(OR(H${r}="",I${r}="",D${r}=""),"",I${r}*(1-EXP(-2*H${r}*D${r}))/(2*H${r}*D${r}))`}
+],input as unknown as Record<string,number>)}
+
+async function download(result:Promise<{workbook:ExcelWorkbook;filename:string}>){const {workbook,filename}=await result;const data=await workbook.xlsx.writeBuffer();const blob=new Blob([data as BlobPart],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url)}
+export const downloadLinearWaveWorkbook=(input:LinearWaveInput)=>download(createLinearWaveWorkbook(input))
+export const downloadShoalingWorkbook=(input:ShoalingRefractionInput)=>download(createShoalingWorkbook(input))
+export const downloadStokesDriftWorkbook=(input:StokesDriftInput)=>download(createStokesDriftWorkbook(input))
