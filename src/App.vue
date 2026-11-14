@@ -8,9 +8,11 @@ import WindCarterCalculator from './calculators/waves/wind-carter/WindCarterCalc
 import CycloneWavesCalculator from './calculators/waves/cyclone-waves/CycloneWavesCalculator.vue'
 import TheorySelectionCalculator from './calculators/waves/theory-selection/TheorySelectionCalculator.vue'
 import RemainingCalculator, { type RemainingId } from './calculators/RemainingCalculator.vue'
+import HomePage from './pages/HomePage.vue'
+import ResourcesPage from './pages/ResourcesPage.vue'
 
-type CalculatorId = 'theory-selection' | 'linear-wave' | 'shoaling-refraction' | 'stokes-drift' | 'wind-holthuijsen' | 'wind-carter' | 'cyclone-waves' | RemainingId
-const activeCalculator = ref<CalculatorId>('linear-wave')
+type CalculatorId = 'home' | 'resources' | 'theory-selection' | 'linear-wave' | 'shoaling-refraction' | 'stokes-drift' | 'wind-holthuijsen' | 'wind-carter' | 'cyclone-waves' | RemainingId
+const activeCalculator = ref<CalculatorId>('home')
 const menusSuppressed = ref(false)
 
 function selectCalculator(id: CalculatorId) {
@@ -28,12 +30,12 @@ function selectCalculator(id: CalculatorId) {
       <div class="banner-title">Marine Calculators</div>
     </div>
     <nav :class="{ 'menus-suppressed': menusSuppressed }" aria-label="Primary navigation" @mouseleave="menusSuppressed = false">
-      <a href="#">Home</a>
+      <button class="nav-link" :class="{ active: activeCalculator === 'home' }" type="button" @click="selectCalculator('home')">Home</button>
       <div class="nav-menu">
         <button class="active" type="button">Waves <span>▾</span></button>
         <div class="nav-dropdown">
-          <button type="button" @click="selectCalculator('theory-selection')">Nonlinear Regular Wave Theory</button>
           <button type="button" @click="selectCalculator('linear-wave')">Linear Wave Theory</button>
+          <button type="button" @click="selectCalculator('theory-selection')">Nonlinear Regular Wave Theory</button>
           <button type="button" @click="selectCalculator('shoaling-refraction')">Wave Shoaling and Refraction</button>
           <button type="button" @click="selectCalculator('stokes-drift')">Stokes Drift</button>
           <button type="button" @click="selectCalculator('wind-holthuijsen')">Wind Waves (Holthuijsen, 2006)</button>
@@ -59,11 +61,14 @@ function selectCalculator(id: CalculatorId) {
         <button type="button" @click="selectCalculator('submerged-breakwater')">Transmission over Submerged Breakwater</button>
         <button type="button" @click="selectCalculator('reef-balls')">Transmission over Reef Balls</button>
       </div></div>
+      <button class="nav-link" :class="{ active: activeCalculator === 'resources' }" type="button" @click="selectCalculator('resources')">Resources</button>
     </nav>
   </header>
 
   <main>
-    <TheorySelectionCalculator v-if="activeCalculator === 'theory-selection'" />
+    <HomePage v-if="activeCalculator === 'home'" />
+    <ResourcesPage v-else-if="activeCalculator === 'resources'" />
+    <TheorySelectionCalculator v-else-if="activeCalculator === 'theory-selection'" />
     <LinearWaveCalculator v-else-if="activeCalculator === 'linear-wave'" />
     <ShoalingRefractionCalculator v-else-if="activeCalculator === 'shoaling-refraction'" />
     <StokesDriftCalculator v-else-if="activeCalculator === 'stokes-drift'" />

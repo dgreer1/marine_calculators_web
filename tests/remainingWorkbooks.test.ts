@@ -25,13 +25,18 @@ describe('additional calculator Excel templates', () => {
     expect(reopened.getWorksheet('Calculations')!.getCell('E31').formula).toContain('3.5E-6')
   })
 
+  it('converts rock-sizing storm duration to number of waves', async () => {
+    const workbook=await createRemainingWorkbook('rock-sizing',{H:2.5,periodType:1,T:16,rhoS:2700,rhoW:1025,S:2,P:.4,duration:9.6,alpha:14,waveAngle:0,safety:1.1,depth:3})
+    expect(workbook.getWorksheet('Calculations')!.getCell('N7').formula).toBe('IF(OR(I7="",D7=""),"",I7*3600/D7)')
+  })
+
   it.each([
     ['critical-current',{d:.0001,depth:10,rhoS:2650,rho:1027},'I7','7*(C7/B7)^(1/7)'],
     ['critical-shear',{d:.0002,rhoS:2650,rho:1027},'G7','F7*9.81*(C7-D7)*B7'],
     ['critical-orbital',{d:.0002,T:10,rhoS:2650,rho:1027},'F7','IF(B7<0.0005'],
     ['submerged-breakwater',{H:2,L:150,depth:.5,width:15,d50:.5},'K7','IF(AND(G7>=0,G7<=7.08'],
     ['reef-balls',{H:1.5,L:150,depth:.5,width:15},'J7','IF(F7<=0.4,H7'],
-    ['rock-sizing',{H:2.5,periodType:1,T:16,rhoS:2700,rhoW:1025,S:2,P:.4,Nz:2160,alpha:14,waveAngle:0,safety:1.1,depth:3},'Z7','B7/(X7*(E7/F7-1))'],
+    ['rock-sizing',{H:2.5,periodType:1,T:16,rhoS:2700,rhoW:1025,S:2,P:.4,duration:9.6,alpha:14,waveAngle:0,safety:1.1,depth:3},'Z7','B7/(Y7*(E7/F7-1))'],
     ['overtopping',{H:2.5,T:9,alpha:20,waveAngle:0,runupSafety:1.1,overtopSafety:1.5,rough:.9,berm:1,Rc:8.5},'T7','100*EXP(-3.91*J7^2/O7^2)'],
     ['bed-shear',{H:2,T:8,phi:45,U:.5,z0:.002,depth:50,rho:1027},'U7','SQRT((S7+R7*COS(RADIANS(T7)))^2'],
   ] as const)('creates the expanded %s workbook',async(id,values,cell,fragment)=>{

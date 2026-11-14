@@ -16,7 +16,8 @@ describe('remaining Shiny calculator ports', () => {
     expect(x.tauC).toBeCloseTo(.4931845,6); expect(x.tauW).toBeCloseTo(.4385058,6)
   })
   it('matches engineering and sediment defaults', () => {
-    expect(rockSizing(2.5,16,2700,1025,2,.4,2160,14,3,0,1.1,true).diameter).toBeCloseTo(.959732,6)
+    const rock=rockSizing(2.5,16,2700,1025,2,.4,2160,14,3,0,1.1,true)
+    expect(rock.waves).toBe(2160); expect(rock.duration).toBeCloseTo(9.6,6); expect(rock.diameter).toBeCloseTo(.959732,6)
     const x=overtopping(2.5,9,20,0,1.1,1.5,.9,1,8.5); expect(x.xi).toBeCloseTo(2.588707,6); expect(x.runup).toBeCloseTo(7.592589,6); expect(x.rate).toBeCloseTo(.6256469,6); expect(x.percentage).toBeCloseTo(.7443327,6)
     const d=sedimentDensity(30,30,40,1025,2650); expect(d.dry).toBeCloseTo(967,6); expect(d.wet).toBeCloseTo(1617.972,3); expect(d.porosity).toBeCloseTo(.6350943,6)
   })
