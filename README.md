@@ -48,3 +48,9 @@ In the GitHub repository settings, set **Pages → Build and deployment → Sour
 ## Scope
 
 The R Shiny source is a local numerical reference and is not part of this repository. Cnoidal/nonlinear wave modules are not present in that source. Solitary-wave calculations may be considered as future, separately specified work.
+
+## Licence and use
+
+This is proprietary software, not an open-source project. The hosted calculators may be used for their intended calculation functions, and users may use results and spreadsheets generated from their own inputs. The source code may not be copied, modified, redistributed, incorporated into another product, or used to create derivative works without prior written permission. See [LICENSE](LICENSE) for the complete notice.
+
+Third-party material remains subject to its own terms. In particular, the experimental John D. Fenton FOURIER adaptation remains attributed to John D. Fenton, is not relicensed by this repository, and is included while redistribution permission is being sought.

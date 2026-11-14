@@ -1,0 +1,44 @@
+PROPRIETARY SOFTWARE — ALL RIGHTS RESERVED
+
+Copyright © 2026 dgreer1.
+
+This repository and the original source code, documentation, interface designs,
+and other materials created for the Marine Calculators Web project
+(collectively, the "Project Materials") are proprietary. No licence is granted
+to copy, reproduce, modify, adapt, translate, publish, distribute, sublicense,
+sell, incorporate into another product or service, or create derivative works
+from the Project Materials, whether for commercial or non-commercial purposes,
+without prior written permission from the copyright holder.
+
+You may access and use the hosted web application for evaluation and for its
+intended calculation functions. You may use calculation results and spreadsheet
+files generated from your own inputs. This limited permission does not grant any
+right to reuse or redistribute the source code used to produce them.
+
+GitHub users retain only the rights necessary to view and fork public repository
+content through GitHub's services under the GitHub Terms of Service. No
+additional permission is granted by this notice.
+
+THIRD-PARTY MATERIAL
+
+This notice applies only to material for which the repository owner holds the
+necessary rights. Third-party software, libraries, fonts, methods, images, and
+other material remain subject to their respective copyright, licence, and
+permission terms.
+
+In particular, the adapted John D. Fenton FOURIER program remains attributed to
+John D. Fenton. Redistribution permission is being sought. It is not relicensed
+under this notice, and no rights in that program are granted by the repository
+owner.
+
+NO WARRANTY
+
+THE PROJECT MATERIALS AND HOSTED CALCULATORS ARE PROVIDED "AS IS", WITHOUT
+WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING WARRANTIES OF ACCURACY,
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. THE
+CALCULATORS ARE ENGINEERING AIDS. RESULTS MUST BE INDEPENDENTLY CHECKED FOR THE
+INTENDED APPLICATION. TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE COPYRIGHT
+HOLDER SHALL NOT BE LIABLE FOR ANY CLAIM, DAMAGE, LOSS, OR OTHER LIABILITY
+ARISING FROM THE PROJECT MATERIALS, CALCULATORS, OR THEIR RESULTS.
+
+For permission enquiries, contact the repository owner through GitHub.
