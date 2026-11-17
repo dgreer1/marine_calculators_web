@@ -1,0 +1,100 @@
+name: Test and deploy calculator to ocean
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    if: vars.OCEAN_DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      VITE_GA_MEASUREMENT_ID: ${{ vars.VITE_GA_MEASUREMENT_ID }}
+      VITE_SITE_URL: https://rippleforecast.com/calculator/
+      VITE_BASE_PATH: /calculator/
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Require release tags to point to main history
+        if: startsWith(github.ref, 'refs/tags/')
+        run: git merge-base --is-ancestor HEAD origin/main
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.18.3
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: python3 -m unittest discover -s tests/deployment -v
+      - run: pnpm test
+      - run: pnpm build
+      - name: Package static release
+        if: startsWith(github.ref, 'refs/tags/')
+        run: tar -czf calculator.tar.gz -C dist .
+      - uses: actions/upload-artifact@v4
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          name: calculator
+          path: calculator.tar.gz
+          retention-days: 7
+
+  deploy:
+    if: vars.OCEAN_DEPLOY_ENABLED == 'true' && startsWith(github.ref, 'refs/tags/v')
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: ocean
+      url: https://rippleforecast.com/calculator/
+    concurrency:
+      group: ocean-calculator
+      cancel-in-progress: false
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: calculator
+      - name: Deploy through restricted SSH receiver
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.OCEAN_SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.OCEAN_KNOWN_HOSTS }}
+          OCEAN_HOST: ${{ vars.OCEAN_HOST }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          [[ "$RELEASE_TAG" =~ ^v[A-Za-z0-9][A-Za-z0-9._-]{0,126}$ ]]
+          test -n "$OCEAN_HOST"
+          umask 077
+          ssh_dir=$(mktemp -d)
+          trap 'rm -rf "$ssh_dir"' EXIT
+          printf '%s\n' "$SSH_PRIVATE_KEY" > "$ssh_dir/key"
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > "$ssh_dir/known_hosts"
+          ssh_args=(-i "$ssh_dir/key" -o BatchMode=yes -o IdentitiesOnly=yes
+            -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$ssh_dir/known_hosts"
+            -o ConnectTimeout=15 -o ServerAliveInterval=15 -o ServerAliveCountMax=3)
+          ssh "${ssh_args[@]}" "marine-deploy@$OCEAN_HOST" check
+          ssh "${ssh_args[@]}" "marine-deploy@$OCEAN_HOST" \
+            "deploy $GITHUB_SHA $RELEASE_TAG" < calculator.tar.gz
+      - name: Verify public release
+        env:
+          EXPECTED_SHA: ${{ github.sha }}
+          EXPECTED_TAG: ${{ github.ref_name }}
+        run: |
+          curl --fail --silent --show-error --retry 3 --retry-delay 5 \
+            -H 'Cache-Control: no-cache' \
+            "https://rippleforecast.com/calculator/release.json?sha=$EXPECTED_SHA" \
+            -o release.json
+          python3 - <<'PY'
+          import json, os
+          with open("release.json") as file:
+              release = json.load(file)
+          assert release["sha"] == os.environ["EXPECTED_SHA"], release
+          assert release["tag"] == os.environ["EXPECTED_TAG"], release
+          PY

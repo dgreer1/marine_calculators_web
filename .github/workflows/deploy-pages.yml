@@ -20,15 +20,16 @@ jobs:
       VITE_GA_MEASUREMENT_ID: ${{ vars.VITE_GA_MEASUREMENT_ID }}
       VITE_SITE_URL: ${{ vars.VITE_SITE_URL }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v4
         with:
           version: 10.18.3
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: python3 -m unittest discover -s tests/deployment -v
       - run: pnpm test
       - run: pnpm build
       - uses: actions/upload-pages-artifact@v3
